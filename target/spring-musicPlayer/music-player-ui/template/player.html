@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <style type="text/css">
+        #player{
+            /*position*/
+            margin-top: 300px;
+            margin-left: 500px;
+            position: absolute;
+            height: 15px;
+            width: 550px;
+            border: black;
+        }
+        #progress-bar{
+            background-color: gray;
+            width: 500px;
+            height: 3px;
+            margin-top: 5px;
+            padding:0;
+            position: absolute;
+
+        }
+        #progress-line{
+            background-color: red;
+            height: 2px;
+            width: 0;
+        }
+        #pointer{
+            width: 10px;
+            height: 10px;
+            border-radius: 1em;
+            background-color: lightgray;
+            position: absolute;
+            margin-top: 2px;
+            cursor: pointer;
+            left:0;
+
+        }
+        #control{
+            margin-left: 170px;
+            margin-top: 50px;
+        }
+        #last-one{
+            float: left;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        #plays{
+            float: left;
+            margin-left: 20px;
+            cursor: pointer;
+        }
+        #next-one{
+            float: left;
+            margin-top: 10px;
+            margin-left: 20px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+<div id="player">
+<div id="progress-bar">
+    <div id="progress-line"></div>
+</div>
+    <div id="pointer"></div>
+    <audio src="../music/LOSER.ogg" id="audio"></audio>
+    <div id="control">
+        <div id="last-one"><img src="../icon/lastOne.png" alt="last"></div>
+        <div id="plays" onclick="play()"><img src="../icon/play.svg" alt="control" id="play-img"></div>
+        <div id="next-one"><img src="../icon/nextOne.png" alt="next"></div>
+    </div>
+</div>
+
+
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+    function play() {
+        var audio = $("audio")[0];
+        $plays = $("#plays");
+        if (audio.paused){
+            audio.play();
+            $plays.html("<img src=\"../icon/pause.svg\" alt=\"control\">");
+        }
+        else{
+            audio.pause();
+            $plays.html("<img src=\"../icon/play.svg\" alt=\"control\">");
+        }
+    }
+
+    $(function () {
+        var tag = false,dx = 0,left = 0,bgleft = 0;
+        $("#audio")[0].addEventListener("timeupdate",function () {
+            console.log("listen");
+            var audio = $("audio")[0];
+            var time = audio.currentTime;
+            var all_time = audio.duration;
+            console.log(time+";"+all_time);
+            var left = (time/all_time)*500;
+            console.log(left);
+            $('#pointer').css('left', left);
+            $('#progress-line').animate({width:left},1);
+        })
+        $('#pointer').mousedown(function(e) {
+            dx = e.pageX - left;
+            tag = true;
+        });
+        $(document).mouseup(function(e) {
+            tag = false;
+        });
+        $('#pointer').mousemove(function(e) {//鼠标移动
+            if (tag) {
+                left = e.pageX - dx;
+                if (left <= 0) {
+                    left = 0;
+                }else if (left > 500) {
+                    left = 500;
+                }
+                $('#pointer').css('left', left);
+                $('#progress-line').animate({width:left},1);
+                var audio = $("audio")[0];
+                var volume = left/500;
+                audio.currentTime = volume * audio.duration;
+            }
+        });
+        $('#progress-bar').click(function(e) {//鼠标点击
+            if (!tag) {
+                bgleft = $('#progress-bar').offset().left;
+                left = e.pageX - bgleft;
+                if (left <= 0) {
+                    left=0;
+                }else if (left > 500) {
+                    left = 500;
+                }
+                $('#pointer').css('left', left);
+                $('#progress-line').animate({width:left},300);//
+                var audio = $("audio")[0];
+                var volume = left/500;
+                audio.currentTime = volume * audio.duration;
+            }
+        });
+
+    })
+
+</script>
+</body>
+
+</html>
